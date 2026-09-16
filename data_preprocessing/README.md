@@ -6,6 +6,9 @@ that the public entry point remains a single, auditable model file.
 
 ## Overview
 
+For the full conceptual explanation and the dataset-scale table, see
+[`docs/DATASET_PROCESSING.md`](../docs/DATASET_PROCESSING.md).
+
 The preprocessing pipeline converts raw apo structures and residue annotations
 into aligned, residue-level tensors:
 

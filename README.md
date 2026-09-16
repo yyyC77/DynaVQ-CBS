@@ -12,6 +12,7 @@ and selective structural routing with a compact vector-quantized bottleneck.
 - `requirements-model.txt` — minimal dependencies for training and evaluation.
 - `data_preprocessing/` — data preparation utilities and a concise preprocessing overview.
 - `docs/` — representation provenance and reproduction notes.
+- `docs/dataset_scale.tex` — manuscript-ready dataset-scale table.
 
 Large data files, precomputed representations, caches, and checkpoints are not
 tracked in this repository. Their sources and expected layout are documented in
