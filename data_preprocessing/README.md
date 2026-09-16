@@ -28,7 +28,7 @@ into aligned, residue-level tensors:
 7. Compute the **dynamics-prior components** `bfactor_z`, `contact_density`, and
    `gap_proximity`, then save them as reusable cache files before training.
 8. Validate that labels, representations, coordinates, graph nodes, and
-   flexibility features all have the same residue length `L`.
+   dynamics-prior components all have the same residue length `L`.
 
 ## Utilities
 
@@ -37,7 +37,7 @@ into aligned, residue-level tensors:
 - `rebuild_entities_from_cut.py`: build chain-level structural entities.
 - `build_apo_pipeline.py` and `build_graph_cache.py`: construct local geometry
   and graph caches.
-- `build_flex_features.py`: create dynamics-prior component caches.
+- `build_dynamics_prior.py`: create dynamics-prior component caches.
 - `build_sequence_representations.py`: generate sequence representations.
 - `validate_inputs.py`: perform consistency checks before training.
 

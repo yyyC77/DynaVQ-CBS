@@ -157,7 +157,7 @@ def _build_graph_density(graph_npz: Path, n_res: int) -> np.ndarray:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Build flexibility feature cache aligned to chain_npz residues.")
+    ap = argparse.ArgumentParser(description="Build dynamics-prior component cache aligned to chain_npz residues.")
     ap.add_argument("--pipeline_dir", type=Path, required=True, help="pipeline dir with entities/ and graph_cache/")
     ap.add_argument("--cif_dir", type=Path, required=True, help="directory with APO cif files (lowercase stem by pdb id)")
     ap.add_argument("--out_dir", type=Path, default=None, help="output flex cache dir (default: <pipeline_dir>/flex_cache)")
@@ -289,4 +289,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

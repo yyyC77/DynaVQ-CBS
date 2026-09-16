@@ -15,12 +15,12 @@ The default paths are defined in `config.py`:
 | Sequence representations | `data/embeddings/` | `{pdb}{chain}.npy`, shape `[L, D]` |
 | Chain geometry | `data/structure_pipeline/entities/` | chain metadata and `chain_npz/*.npz` |
 | Local graph cache | `data/structure_pipeline/graph_cache/` | neighbor indices and cache index |
-| Flexibility features | `data/structure_pipeline/flex_cache/` | `{chain_uid}.npz` per chain |
+| Dynamics-prior components | `data/structure_pipeline/flex_cache/` | `{chain_uid}.npz` per chain |
 
 Annotation files are semicolon-separated:
 `pdb_id;chain;uniprot_id;positive_residues;reserved;chain_uid`.
 All residue-level arrays must share the same length `L`, and `chain_uid` is the
-join key between labels, geometry, graph features, and flexibility features.
+join key between labels, geometry, graph features, and dynamics-prior components.
 
 ## Preprocessing overview
 
