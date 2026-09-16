@@ -52,8 +52,8 @@ def iter_rows(csv_path: Path, split_name: str):
 def main():
     ap = argparse.ArgumentParser(description="Rebuild entities from aligned translated CSV (with chain_uid column).")
     ap.add_argument("--aligned_ann_dir", type=Path, default=Path("cryptobench-translated-annotations-aligned"))
-    ap.add_argument("--src_pipeline_dir", type=Path, default=Path("cryptobench/pipeline_v2"))
-    ap.add_argument("--out_pipeline_dir", type=Path, default=Path("cryptobench/pipeline_v2_cut_aligned"))
+    ap.add_argument("--src_pipeline_dir", type=Path, default=Path("data/structure_pipeline"))
+    ap.add_argument("--out_pipeline_dir", type=Path, default=Path("data/structure_pipeline_aligned"))
     ap.add_argument("--use_final_csv", action="store_true")
     args = ap.parse_args()
 
@@ -187,4 +187,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

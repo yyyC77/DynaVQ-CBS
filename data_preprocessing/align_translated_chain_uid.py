@@ -131,7 +131,7 @@ def main():
     ap = argparse.ArgumentParser(description="Align translated CSV rows to chain_uid using pdb+chain+embedding length.")
     ap.add_argument("--ann_dir", type=Path, default=Path("cryptobench-translated-annotations"))
     ap.add_argument("--emb_dir", type=Path, default=Path("cryptobench-ahojv2-cut"))
-    ap.add_argument("--pipeline_dir", type=Path, default=Path("cryptobench/pipeline_v2"))
+    ap.add_argument("--pipeline_dir", type=Path, default=Path("data/structure_pipeline"))
     ap.add_argument("--use_final_csv", action="store_true")
     ap.add_argument("--out_dir", type=Path, default=Path("cryptobench-translated-annotations-aligned"))
     args = ap.parse_args()
@@ -156,4 +156,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

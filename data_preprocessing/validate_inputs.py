@@ -174,11 +174,10 @@ def validate(base_dir: Path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base_dir", type=Path, default=Path("cryptobench/pipeline_v2"))
+    ap.add_argument("--base_dir", type=Path, default=Path("data/structure_pipeline"))
     args = ap.parse_args()
     validate(args.base_dir)
 
 
 if __name__ == "__main__":
     main()
-

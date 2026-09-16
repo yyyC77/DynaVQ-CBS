@@ -248,8 +248,8 @@ def _embed_sequence(tokenizer, model, seq: str, device: str, max_residues: int, 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pipeline_dir", type=Path, default=Path("cryptobench/pipeline_v2"))
-    ap.add_argument("--cif_dir", type=Path, default=Path("cryptobench/cryptobench-dataset/auxiliary-data/cif-files"))
+    ap.add_argument("--pipeline_dir", type=Path, default=Path("data/structure_pipeline"))
+    ap.add_argument("--cif_dir", type=Path, default=Path("data/raw/cif-files"))
     ap.add_argument("--esm_model", type=str, default="facebook/esm2_t36_3B_UR50D")
     ap.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     ap.add_argument("--gpu", type=int, default=None, help="GPU index. Overrides --device when set; use -1 for CPU.")
