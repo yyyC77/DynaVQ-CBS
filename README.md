@@ -1,29 +1,33 @@
 # Dynamics-informed selective structural routing for cryptic binding sites prediction from apo structures
 
+<p align="center">
+  <img src="assets/6a98_four_state_same_view_story.png" alt="Molecular-dynamics pocket opening story for the 6A98 case" width="100%" />
+</p>
+
+<p align="center"><em>Illustrative MD trajectory analysis: closed, opening, and ligand-compatible structural states.</em></p>
+
 This repository provides the reference implementation for residue-level
-cryptic binding-site prediction from apo protein structures. The method uses
-sequence representations, local backbone geometry, residue flexibility cues,
-and selective structural routing with a compact vector-quantized bottleneck.
+cryptic binding-site prediction from apo protein structures. The method combines
+sequence representations, local backbone geometry, dynamics-prior components,
+and selective structural routing in one trainable predictor.
 
-Structure graphs and dynamics-prior components are cached before training to
-avoid repeated preprocessing. The trainable model still jointly learns the
-sequence, structure, prior-guided routing, and quantization pathways end to end
-from the prepared multimodal inputs.
+## Core release
 
-## Repository contents
+| Component | Location | Purpose |
+|---|---|---|
+| Model | [`model.py`](model.py) | Complete model, loader, training loop, and evaluation |
+| Configuration | [`config.py`](config.py) | Paths, presets, and experiment hyperparameters |
+| Data preparation | [`data_preprocessing/`](data_preprocessing/) | Input construction and consistency checks |
+| Processing overview | [`docs/DATASET_PROCESSING.md`](docs/DATASET_PROCESSING.md) | Dataset logic and preprocessing contract |
+| Scale table | [`docs/dataset_scale.tex`](docs/dataset_scale.tex) | Manuscript-ready CryptoBench/CryptoBank table |
+| References | [`references.bib`](references.bib) | Dataset and resource citations |
+| MD visualization | [`md_visualization/`](md_visualization/) | Reproducible scripts for the illustrative MD figure |
 
-- `model.py` — the complete model, data loader, training loop, and evaluation code.
-- `config.py` — paths, dataset presets, and all experiment hyperparameters.
-- `requirements-model.txt` — minimal dependencies for training and evaluation.
-- `data_preprocessing/` — data preparation utilities and a concise preprocessing overview.
-- `docs/` — representation provenance and reproduction notes.
-- `docs/dataset_scale.tex` — manuscript-ready dataset-scale table.
+Large raw datasets, trajectories, representations, caches, and checkpoints are
+not tracked. Their expected layout and provenance are documented in
+[`docs/`](docs/) and [`data_preprocessing/`](data_preprocessing/).
 
-Large data files, precomputed representations, caches, and checkpoints are not
-tracked in this repository. Their sources and expected layout are documented in
-`docs/` and `data_preprocessing/`.
-
-## Installation
+## Installation and training
 
 ```bash
 python -m venv .venv
@@ -33,27 +37,47 @@ python -m pip install --upgrade pip
 pip install -r requirements-model.txt
 ```
 
-## Configure and run
-
-Edit `config.py` if the prepared data are stored outside the default `data/`
-layout. First verify the resolved configuration without loading data:
+Edit `config.py` when prepared inputs are stored outside the default `data/`
+layout. Verify the resolved configuration first:
 
 ```bash
 python model.py --dry_run --out_dir runs/dry-run
 ```
 
-Then run training:
+Run training with:
 
 ```bash
 python model.py --train_subset apo --test_preset same \\
   --epochs 20 --seed 42 --out_dir runs/apo-seed42
 ```
 
-The output directory contains the trained weights, resolved configuration,
-epoch histories, and validation/test metrics.
+## Data and visualization workflow
+
+The preparation stage aligns residue labels to apo chains, constructs cached
+structure graphs, computes cached dynamics-prior components, validates all
+residue lengths, and then hands the prepared multimodal inputs to `model.py`.
+See [`data_preprocessing/README.md`](data_preprocessing/README.md) for the
+step-by-step description.
+
+The MD figure is a visual illustration rather than a training input. Its source
+scripts and required case-directory layout are documented in
+[`md_visualization/README.md`](md_visualization/README.md).
+
+## Dataset scale
+
+The counts follow the statistical units defined by each resource and are
+descriptive rather than directly comparable. The manuscript-ready LaTeX source
+is [`docs/dataset_scale.tex`](docs/dataset_scale.tex).
+
+| Dataset statistic | CryptoBench | CryptoBank |
+|---|---:|---:|
+| Structural combinations | 14,054,029 | ~6,000,000 |
+| Cryptic combinations | 221,026 | 574,314 |
+| Cryptic fraction | 1.57% | 9.6% |
+| Apo structures / chains | 1,107 | 81,302 |
+| Cryptic binding sites | 1,361 | 5,151 |
 
 ## Citation
 
-If you use this code, please cite the accompanying paper. For the benchmark
-and related cryptic-site resources used in the study, see the references in
+Please cite the accompanying paper and the supporting resources listed in
 [`references.bib`](references.bib).
