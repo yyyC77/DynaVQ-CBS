@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Self-contained fixed trainer for the final B1 + Flex + VQ model.
+"""Reference implementation of dynamics-informed selective structural routing.
 
 This file intentionally collects the model, data-loading helpers, training loop,
 and metric utilities needed for the fixed model into one program.  It does not
@@ -30,136 +30,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-TRAIN_PRESETS = {
-    "cb-full": {
-        "ann_dir": "cryptobench/evaluation-annotations-aligned/cb-full",
-        "emb_dir": "cryptobench-ahojv2-cut",
-        "pipeline_dir": "cryptobench/pipeline_v2_cut_aligned",
-        "graph_cache_dir": "cryptobench/pipeline_v2_cut_aligned/graph_cache",
-        "flex_cache_dir": "cryptobench/pipeline_v2_cut_aligned/flex_cache",
-    },
-    "cb-pm": {
-        "ann_dir": "cryptobench/evaluation-annotations-aligned/cb-pm",
-        "emb_dir": "cryptobench-ahojv2-cut",
-        "pipeline_dir": "cryptobench/pipeline_v2_cut_aligned",
-        "graph_cache_dir": "cryptobench/pipeline_v2_cut_aligned/graph_cache",
-        "flex_cache_dir": "cryptobench/pipeline_v2_cut_aligned/flex_cache",
-    },
-    "cb-p2rank-apo": {
-        "ann_dir": "cryptobench/evaluation-annotations-aligned/cb-p2rank-apo",
-        "emb_dir": "cryptobench-ahojv2-cut",
-        "pipeline_dir": "cryptobench/pipeline_v2_cut_aligned",
-        "graph_cache_dir": "cryptobench/pipeline_v2_cut_aligned/graph_cache",
-        "flex_cache_dir": "cryptobench/pipeline_v2_cut_aligned/flex_cache",
-    },
-}
-
-
-TEST_PRESETS = {
-    "same": {},
-    "holo_cb_p2rank_main": {
-        "test_ann_dir": "cryptobench/evaluation-annotations-aligned/cb-p2rank-holo-main-indexed",
-        "test_emb_dir": "cryptobench-holo-cb-p2rank-main-cut",
-        "test_pipeline_dir": "cryptobench/pipeline_holo_cb_p2rank_main",
-        "test_graph_cache_dir": "cryptobench/pipeline_holo_cb_p2rank_main/graph_cache",
-        "test_flex_cache_dir": "cryptobench/pipeline_holo_cb_p2rank_main/flex_cache",
-    },
-    "holo_cb_p2rank_all": {
-        "test_ann_dir": "cryptobench/evaluation-annotations-aligned/cb-p2rank-holo-all-indexed",
-        "test_emb_dir": "cryptobench-holo-cb-p2rank-all-cut",
-        "test_pipeline_dir": "cryptobench/pipeline_holo_cb_p2rank_all",
-        "test_graph_cache_dir": "cryptobench/pipeline_holo_cb_p2rank_all/graph_cache",
-        "test_flex_cache_dir": "cryptobench/pipeline_holo_cb_p2rank_all/flex_cache",
-    },
-}
-
-
-FIXED = {
-    "model_type": "b1",
-    "use_final_csv": True,
-    "use_flex": True,
-    "flex_features": "bfactor_z,contact_density,gap_proximity",
-    "require_flex_for_b1": True,
-    "flex_mode": "guided_center",
-    "flex_target": "gate",
-    "flex_scale": 0.2,
-    "flex_dropout": 0.1,
-    "gate_temp_base": 1.0,
-    "use_region_condition": True,
-    "region_bfactor_z_min": 0.5,
-    "region_contact_density_max": 0.35,
-    "use_flex_weighting": False,
-    "flex_weight_center": 0.5,
-    "flex_weight_temp": 1.0,
-    "flex_pos_alpha": 0.35,
-    "flex_neg_beta": 0.15,
-    "flex_neg_min": 0.7,
-    "flex_weight_min": 0.6,
-    "flex_weight_max": 1.8,
-    "lambda_flex_aux": 0.1,
-    "aux_target": "bfactor_z",
-    "use_vq": True,
-    "vq_dim": 48,
-    "codebook_size": 128,
-    "commitment_beta": 0.22,
-    "vq_fuse_scale": 1.0,
-    "vq_struct_path_mode": "bottleneck",
-    "vq_bottleneck_mode": "hard",
-    "vq_guidance_target": "gate",
-    "vq_gate_scale": 0.2,
-    "use_region_conditioned_vq": True,
-    "loop_score_bfactor_weight": 1.0,
-    "loop_score_contact_weight": 1.0,
-    "loop_score_gap_weight": 0.5,
-    "loop_score_bias": 0.0,
-    "loop_score_temp": 1.0,
-    "loop_score_threshold": 0.55,
-    "vq_bg_residual_scale": 0.1,
-    "vq_update_mode": "ema",
-    "ema_decay": 0.99,
-    "ema_eps": 1e-5,
-    "dead_code_reset_every": 200,
-    "dead_code_reset_threshold": 400,
-    "dead_code_reset_max": 8,
-    "use_vq_guidance_weighting": False,
-    "detach_vq_prior_weight": True,
-    "lambda_vq_prior": 0.0,
-    "vq_weight_pos_alpha": 0.15,
-    "vq_weight_neg_beta": 0.05,
-    "vq_weight_min": 0.8,
-    "vq_weight_max": 1.3,
-    "vq_loss_loop_weight": 1.0,
-    "vq_loss_bg_weight": 0.2,
-    "usage_on_loop_only": True,
-    "lambda_vq": 0.025,
-    "lambda_usage": 0.0,
-    "vq_warmup_epochs": 2,
-    "vq_ramp_epochs": 8,
-    "hard_bottleneck_from_epoch": 8,
-    "select_primary": "auprc",
-    "select_secondary": "mcc",
-    "chain_batch_size": 1,
-    "hidden_dim": 256,
-    "dropout": 0.35,
-    "lr_head": 5e-5,
-    "lr_gvp": 5e-6,
-    "lr_vq": 5e-5,
-    "weight_decay": 1e-3,
-    "imbalance_strategy": "pos_weight",
-    "gvp_layers": 2,
-    "gvp_out_dim": 128,
-    "node_scalar_dim": 32,
-    "node_vector_dim": 4,
-    "gvp_dropout": 0.3,
-    "graph_cutoff": 10.0,
-    "rbf_bins": 16,
-    "grad_clip_norm": 0.5,
-}
+from config import FIXED, TEST_PRESETS, TRAIN_PRESETS
 
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--train_subset", choices=sorted(TRAIN_PRESETS), default="cb-p2rank-apo")
+    ap.add_argument("--train_subset", choices=sorted(TRAIN_PRESETS), default="apo")
     ap.add_argument("--test_preset", choices=sorted(TEST_PRESETS), default="same")
     ap.add_argument("--ann_dir", type=Path, default=None)
     ap.add_argument("--emb_dir", type=Path, default=None)
