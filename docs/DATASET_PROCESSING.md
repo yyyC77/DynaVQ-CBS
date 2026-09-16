@@ -81,19 +81,28 @@ report records the mapping and any discarded rows.
 For each apo chain, the preprocessing stage stores Cα coordinates, backbone
 direction vectors, residue identifiers, and validity flags. A local residue
 graph is then built with the model’s fixed 10 Å cutoff and maximum of 40
-neighbors. Graph arrays and sequence arrays are checked to have the same node
-count `L`.
+neighbors. It is constructed and cached before training to avoid repeating
+geometric neighbor search during every training epoch. Graph arrays and
+sequence arrays are checked to have the same node count `L`.
 
-### 7. Flexibility features and final sample validation
+### 7. Dynamics-prior components and final sample validation
 
-The structural cache is augmented with residue-level `bfactor_z`,
-`contact_density`, and `gap_proximity`. These features are aligned to the same
-chain-local order and saved as a separate cache. Before training, the loader
+The structural cache is augmented with the **dynamics-prior components**
+`bfactor_z`, `contact_density`, and `gap_proximity`. These components are
+aligned to the same chain-local order and saved as a separate cache before
+training, so they can be reused across runs with different seeds or
+hyperparameters. Before training, the loader
 verifies that labels, masks, sequence representations, coordinates, graph
-nodes, and flexibility features agree in length and contain finite values where
+nodes, and dynamics-prior components agree in length and contain finite values where
 required. Samples failing these checks are counted in the run summary rather
 than silently entering the training set.
 
 The executable utilities for these steps are grouped in
 `data_preprocessing/`; `model.py` begins only after this preparation contract is
-satisfied.
+satisfied. Caching these deterministic inputs is an efficiency decision, not a
+separate prediction stage. During training, sequence representations, cached
+structure features, dynamics-prior components, selective routing, and the
+quantization bottleneck are fused and optimized within the same model. Thus the
+predictor is end-to-end from the prepared multimodal input to residue-level
+cryptic-site probabilities, without separately training a structure classifier
+or a dynamics classifier.

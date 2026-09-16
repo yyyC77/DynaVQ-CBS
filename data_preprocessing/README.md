@@ -23,9 +23,10 @@ into aligned, residue-level tensors:
 5. Build a chain-level structure record containing Cα coordinates, backbone
    vectors, residue identifiers, and validity masks.
 6. Build a local residue graph using the same distance cutoff and neighbor cap
-   used by the model.
-7. Compute the residue-level flexibility descriptors `bfactor_z`,
-   `contact_density`, and `gap_proximity`, then save them as cache files.
+   used by the model, then cache it before training to avoid repeated geometric
+   preprocessing.
+7. Compute the **dynamics-prior components** `bfactor_z`, `contact_density`, and
+   `gap_proximity`, then save them as reusable cache files before training.
 8. Validate that labels, representations, coordinates, graph nodes, and
    flexibility features all have the same residue length `L`.
 
@@ -36,7 +37,7 @@ into aligned, residue-level tensors:
 - `rebuild_entities_from_cut.py`: build chain-level structural entities.
 - `build_apo_pipeline.py` and `build_graph_cache.py`: construct local geometry
   and graph caches.
-- `build_flex_features.py`: create flexibility feature caches.
+- `build_flex_features.py`: create dynamics-prior component caches.
 - `build_sequence_representations.py`: generate sequence representations.
 - `validate_inputs.py`: perform consistency checks before training.
 

@@ -5,6 +5,11 @@ cryptic binding-site prediction from apo protein structures. The method uses
 sequence representations, local backbone geometry, residue flexibility cues,
 and selective structural routing with a compact vector-quantized bottleneck.
 
+Structure graphs and dynamics-prior components are cached before training to
+avoid repeated preprocessing. The trainable model still jointly learns the
+sequence, structure, prior-guided routing, and quantization pathways end to end
+from the prepared multimodal inputs.
+
 ## Repository contents
 
 - `model.py` — the complete model, data loader, training loop, and evaluation code.
