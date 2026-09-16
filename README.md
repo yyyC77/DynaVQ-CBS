@@ -79,5 +79,25 @@ is [`docs/dataset_scale.tex`](docs/dataset_scale.tex).
 
 ## Citation
 
-Please cite the accompanying paper and the supporting resources listed in
-[`references.bib`](references.bib).
+```bibtex
+@article{skrhak2025cryptobench,
+  title   = {{CryptoBench}: Cryptic Protein--Ligand Binding Sites Dataset and Benchmark},
+  author  = {{\v{S}}krh{'a}k, V{'i}t and Novotn{'y}, Marian and Feidakis, Christos P. and Kriv{'a}k, Radoslav and Hoksza, David},
+  journal = {Bioinformatics},
+  volume  = {41},
+  number  = {1},
+  pages   = {btae745},
+  year    = {2025},
+  doi     = {10.1093/bioinformatics/btae745}
+}
+
+@article{martinez2026cryptobank,
+  title   = {{CryptoBank}: A Resource for the Identification and Prediction of Cryptic Sites in Proteins},
+  author  = {Martinez, Pedro Febrer and Fr{\"o}hlking, Thorben and Borsatto, Alberto and Gervasio, Francesco L.},
+  journal = {Science Advances},
+  volume  = {12},
+  pages   = {eady6364},
+  year    = {2026},
+  doi     = {10.1126/sciadv.ady6364}
+}
+```
